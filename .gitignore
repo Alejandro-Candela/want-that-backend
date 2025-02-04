@@ -1,2 +1,8 @@
-*.pt
-*.pth
+__pycache__/
+*.py[cod]
+*$py.class
+
+input/*
+output/*
+src/models/*
+.env
