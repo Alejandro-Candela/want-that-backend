@@ -36,5 +36,4 @@ def get_grounding_dino_boxes(image: Image.Image, text_prompt: str, box_threshold
         text_threshold=text_threshold
     )
     results = postprocessed[0]  # Diccionario con 'scores', 'labels', 'boxes'
-    print(results)
     return results

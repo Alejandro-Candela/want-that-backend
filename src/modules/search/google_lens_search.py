@@ -73,7 +73,6 @@ def search_similar_product_online(image_path: str) -> None:
     #   print("=== RAW RESPONSE ===", response_html)
 
     results = search.get_dict()
-    print(results)
 
     # --------------------------------------------------------------------
     # 3) Analizar resultados - visual_matches

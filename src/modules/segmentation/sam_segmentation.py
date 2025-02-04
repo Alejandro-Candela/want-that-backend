@@ -44,5 +44,4 @@ def segment_with_sam(image_pil: Image.Image, boxes, multimask_output=False):
         best_mask_idx = np.argmax(scores)
         best_mask = mask_predictions[best_mask_idx]
         masks.append(best_mask)
-        print(f"Segmentado: {best_mask.shape}")
     return masks

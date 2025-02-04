@@ -9,7 +9,7 @@ from utils.utils import (draw_boxes_and_labels, mask_to_transparent_image)
 
 
 image_path = "input/input.jpeg"
-text_prompt = "the sunglasses"
+text_prompt = "the jacket"
 
 # -------------------------
 #  PIPELINE PRINCIPAL
@@ -57,7 +57,7 @@ def main():
     print(f"\nObjeto con mayor score: {best_label} (score={best_score:.2f})")
 
     # 7) Buscar producto similar en Internet (Google Shopping vía SerpAPI)
-    search_similar_product_online("output/object_0_label_the lamp_score_0.76.png")
+    search_similar_product_online(filename)
 
 
 if __name__ == "__main__":
