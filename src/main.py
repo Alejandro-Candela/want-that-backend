@@ -8,8 +8,8 @@ from utils.utils import (draw_boxes_and_labels, mask_to_transparent_image)
 
 
 
-image_path = "input/input_lamp.jpg"
-text_prompt = "the lamp"
+image_path = "input/input.jpeg"
+text_prompt = "the sunglasses"
 
 # -------------------------
 #  PIPELINE PRINCIPAL

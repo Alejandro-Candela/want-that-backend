@@ -4,5 +4,7 @@ __pycache__/
 
 input/*
 output/*
+src/notebooks/*
 src/models/*
+sandbox.py
 .env
