@@ -1,4 +1,5 @@
-
+import time
+import requests
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -39,3 +40,26 @@ def draw_boxes_and_labels(image: Image.Image, results):
 
     plt.axis('off')
     plt.show()
+    
+    import time
+import requests
+
+def wait_for_url(url: str, timeout: int = 300, interval: int = 2) -> bool:
+    """
+    Espera a que la URL esté disponible, realizando peticiones cada 'interval' segundos,
+    hasta un máximo de 'timeout' segundos.
+    
+    Retorna:
+        bool: True si la URL responde con un status_code 200 dentro del timeout, False en caso contrario.
+    """
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return True
+        except Exception:
+            # Ignorar errores y volver a intentar
+            pass
+        time.sleep(interval)
+    return False
