@@ -1,64 +1,66 @@
-import torch
+import sys
+import os
+
+from modules.search.load_to_supabase import load_to_supabase
+
+current_dir = os.path.dirname(__file__)
+sys.path.append(current_dir)
+
 from PIL import Image
 from modules.search.google_lens_search import search_similar_product_online
 from modules.segmentation.grounding_dino import get_grounding_dino_boxes
-from modules.segmentation.sam_segmentation import segment_with_sam
-from utils.utils import (draw_boxes_and_labels, mask_to_transparent_image)
+from modules.segmentation.sam_segmentation import (
+    save_optimized_segmented_image,
+    segment_with_sam,
+)
+from config import BOX_THRESHOLD, TEXT_THRESHOLD
 
-
-
-
-image_path = "input/input.jpeg"
-text_prompt = "the jacket"
+input_image_path = "input/input.jpg"
+text_prompt = "the chair"
+output_path = "output/segmented_object.webp"  # Define output path for segmented image
+bucket_name = "images-bucket"
 
 # -------------------------
 #  PIPELINE PRINCIPAL
 # -------------------------
-
-
 def main():
-    # 1) Cargar imagen
-    image_pil = Image.open(image_path).convert("RGB")
+    # --- Configuración inicial ---
+    # Ruta de la imagen original y texto del prompt
 
-    # 2) Obtener bounding boxes con GroundingDINO
-    results = get_grounding_dino_boxes(
-        image=image_pil, text_prompt=text_prompt, box_threshold=0.3, text_threshold=0.1
+    # Bucket de Supabase (ya creado en la consola de Supabase)
+
+    # --- Paso 1: Cargar y procesar la imagen ---
+    image_pil = Image.open(input_image_path).convert("RGB")
+
+    # --- Paso 2: Obtener la bounding box, score y prompt con Grounding DINO ---
+    best_box, best_score, used_prompt = get_grounding_dino_boxes(
+        image=image_pil,
+        text_prompt=text_prompt,
+        box_threshold=BOX_THRESHOLD,
+        text_threshold=TEXT_THRESHOLD,
     )
 
-    # 3) Visualizar (opcional) la imagen con bounding boxes
-    #draw_boxes_and_labels(image_pil, results)
+    # --- Paso 3: Segmentar el objeto con SAM ---
+    # Se obtiene la máscara a partir de la imagen y la bounding box
+    mask = segment_with_sam(image_pil, best_box)
 
-    # 4) Segmentar con SAM cada caja
-    boxes = results["boxes"]  # [N, 4]
-    masks = segment_with_sam(image_pil, boxes)
+    # Guardar la imagen segmentada (con fondo transparente) en formato WebP
+    segmented_image_path = "segmented_object.webp"
+    saved_path = save_optimized_segmented_image(image_pil, mask, segmented_image_path)
 
-    # 5) Guardar objetos segmentados individualmente
-    for i, (mask, label, score) in enumerate(
-        zip(masks, results["labels"], results["scores"])
-    ):
-        segmented_image = mask_to_transparent_image(image_pil, mask)
-        x0, y0, x1, y1 = boxes[i].tolist()
-        x0, y0, x1, y1 = map(int, [x0, y0, x1, y1])
-        cropped_segmented = segmented_image.crop((x0, y0, x1, y1))
+    # --- Paso 4: Subir la imagen segmentada a Supabase con metadata (score y prompt) ---
+    imgur_url = load_to_supabase(saved_path, bucket_name, best_score, used_prompt)
 
-        filename = f"output/object_{i}_label_{label}_score_{score:.2f}.png"
-        cropped_segmented.save(filename)
-        print(f"Guardado: {filename}")
+    if imgur_url:
+        print(f"Imagen subida exitosamente. URL: {imgur_url}")
+    else:
+        print("Error al subir la imagen a imgur.")
+        
 
-        # 6) Identificar el objeto con mayor score y buscarlo en Internet
-    scores = results["scores"]
-    if len(scores) == 0:
-        print("No se detectó ningún objeto, no se realizará la búsqueda.")
-
-    max_score_idx = torch.argmax(scores).item()
-    best_label = results["labels"][max_score_idx]
-    best_score = scores[max_score_idx]
-
-    print(f"\nObjeto con mayor score: {best_label} (score={best_score:.2f})")
-
-    # 7) Buscar producto similar en Internet (Google Shopping vía SerpAPI)
-    search_similar_product_online(filename)
+    # --- Paso 5: Búsqueda de productos similares usando la URL de la imagen en Supabase ---
+    search_similar_product_online(imgur_url)
 
 
+# Llama a la función principal
 if __name__ == "__main__":
     main()
