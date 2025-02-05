@@ -8,7 +8,7 @@ src_dir = os.path.abspath(os.path.join(current_dir, '../../'))
 sys.path.append(src_dir)
 
 from transformers import AutoProcessor, GroundingDinoForObjectDetection
-from config import DEVICE, GROUNDING_DINO_MODEL
+from config import DEVICE, GROUNDING_DINO_MODEL, BOX_THRESHOLD, TEXT_THRESHOLD
 from utils.utils import preprocess_caption
 
 processor = AutoProcessor.from_pretrained(GROUNDING_DINO_MODEL)
@@ -19,10 +19,15 @@ model_dino = (
 )
 
 
-def get_grounding_dino_boxes(image: Image.Image, text_prompt: str, box_threshold=0.3, text_threshold=0.1):
-    """Retorna las bounding boxes, scores, labels de GroundingDINO."""
-    inputs = processor(images=image, text=preprocess_caption(
-        text_prompt), return_tensors="pt").to(DEVICE)
+def get_grounding_dino_boxes(image: Image.Image, text_prompt: str, box_threshold: float, text_threshold: float):
+    """
+    Retorna la bounding box con el score más alto, su score y el text prompt.
+    """
+    inputs = processor(
+        images=image, 
+        text=preprocess_caption(text_prompt), 
+        return_tensors="pt"
+    ).to(DEVICE)
 
     with torch.no_grad():
         outputs = model_dino(**inputs)
@@ -35,5 +40,12 @@ def get_grounding_dino_boxes(image: Image.Image, text_prompt: str, box_threshold
         box_threshold=box_threshold,
         text_threshold=text_threshold
     )
+
     results = postprocessed[0]  # Diccionario con 'scores', 'labels', 'boxes'
-    return results
+    max_score_index = results['scores'].argmax().item()
+
+    best_box = results['boxes'][max_score_index]
+    best_score = results['scores'][max_score_index]
+
+    return best_box, best_score, text_prompt
+
