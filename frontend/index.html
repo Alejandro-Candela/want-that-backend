@@ -39,6 +39,10 @@
 
         <!-- Nuevo contenedor para resultados -->
         <div id="resultsContainer" class="results-container" style="display: none;">
+            <div class="progress-section">
+                <div id="progressSteps" class="progress-steps"></div>
+                <div id="segmentedImage" class="segmented-image"></div>
+            </div>
             <h2>Search Results</h2>
             <div id="resultsList" class="results-list"></div>
         </div>
@@ -51,6 +55,7 @@
         const promptInput = document.getElementById('promptInput');
         const resultsContainer = document.getElementById('resultsContainer');
         const resultsList = document.getElementById('resultsList');
+        const progressSteps = document.getElementById('progressSteps');
 
         function displayResults(results) {
             resultsList.innerHTML = ''; // Limpiar resultados anteriores
@@ -78,6 +83,21 @@
             resultsContainer.style.display = 'block';
         }
 
+        function displayProgress(step) {
+            const stepElement = document.createElement('div');
+            stepElement.className = 'progress-step';
+            stepElement.innerHTML = `
+                <span class="step-icon">⚡</span>
+                <span class="step-text">${step}</span>
+            `;
+            progressSteps.appendChild(stepElement);
+            stepElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        function clearProgress() {
+            progressSteps.innerHTML = '';
+        }
+
         imageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -97,35 +117,50 @@
             const originalButtonText = submitButton.textContent;
             submitButton.textContent = 'Processing...';
             submitButton.disabled = true;
-            resultsContainer.style.display = 'none';
+            
+            // Mostrar el contenedor de resultados y limpiar progreso anterior
+            resultsContainer.style.display = 'block';
+            clearProgress();
+            resultsList.innerHTML = '';
+            
+            displayProgress('Starting image processing...');
 
             const formData = new FormData();
             formData.append('image', imageInput.files[0]);
             formData.append('text_prompt', promptInput.value);
 
             try {
-                console.log('Sending request...');
                 const response = await fetch('http://localhost:8000/api/search', {
                     method: 'POST',
                     body: formData
                 });
-
-                console.log('Response status:', response.status);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const data = await response.json();
-                console.log('Response data:', data);
                 
                 if (data.status === 'success') {
+                    // Mostrar imagen segmentada
+                    const segmentedImage = document.getElementById('segmentedImage');
+                    segmentedImage.innerHTML = `
+                        <h3>Segmented Object</h3>
+                        <img src="${data.segmented_image}" alt="Segmented object">
+                    `;
+                    
+                    // Mostrar pasos de progreso
+                    data.progress_steps.forEach(step => {
+                        displayProgress(step);
+                    });
+                    
+                    // Mostrar resultados
                     displayResults(data.results);
                 }
 
             } catch (error) {
                 console.error('Error details:', error);
-                alert(`Error: ${error.message}`);
+                displayProgress(`Error: ${error.message}`);
             } finally {
                 submitButton.textContent = originalButtonText;
                 submitButton.disabled = false;

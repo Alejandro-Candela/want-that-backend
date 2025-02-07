@@ -267,3 +267,72 @@ input[type="file"] {
 .shopping-card a:hover {
     background: var(--primary-hover);
 }
+
+.progress-steps {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--bg-color);
+    border-radius: var(--radius);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.step-icon {
+    color: var(--primary-color);
+}
+
+.step-text {
+    font-size: 0.9rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.progress-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.segmented-image {
+    background: var(--bg-color);
+    padding: 1rem;
+    border-radius: var(--radius);
+    text-align: center;
+}
+
+.segmented-image h3 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.segmented-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajustar el diseño en móviles */
+@media (max-width: 768px) {
+    .progress-section {
+        grid-template-columns: 1fr;
+    }
+}

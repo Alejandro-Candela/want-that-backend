@@ -26,26 +26,30 @@ async def search_object(
     image: UploadFile,
     text_prompt: str = Form(...)
 ):
-    # Asegurar que el nombre del archivo sea seguro
     safe_filename = os.path.basename(image.filename)
     temp_image_path = os.path.join("input", f"temp_{safe_filename}")
     
     try:
+        # Paso 1: Guardar imagen
         with open(temp_image_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
         
-        # Procesar imagen usando el pipeline
-        results = process_image_pipeline(
+        # Procesar imagen usando el pipeline y obtener resultados y mensajes
+        results, progress_steps, segmented_image = process_image_pipeline(
             image_path=temp_image_path,
             text_prompt=text_prompt
         )
         
-        return {"status": "success", "results": results}
+        return {
+            "status": "success", 
+            "results": results,
+            "progress_steps": progress_steps,
+            "segmented_image": segmented_image
+        }
         
     except Exception as e:
         return {"status": "error", "message": str(e)}
     
     finally:
-        # Limpiar archivo temporal
         if os.path.exists(temp_image_path):
             os.remove(temp_image_path)
