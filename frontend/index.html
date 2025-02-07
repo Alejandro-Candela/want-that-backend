@@ -55,17 +55,26 @@
         function displayResults(results) {
             resultsList.innerHTML = ''; // Limpiar resultados anteriores
             
-            // Crear contenedor para los resultados
-            const resultsDiv = document.createElement('div');
-            resultsDiv.className = 'results-raw';
+            const resultsGrid = document.createElement('div');
+            resultsGrid.className = 'matches-grid';
             
-            // Mostrar la estructura completa de los resultados
-            resultsDiv.innerHTML = `
-                <h3>Debug Info</h3>
-                <pre>${JSON.stringify(results, null, 2)}</pre>
-            `;
+            results.forEach(result => {
+                const card = document.createElement('a');
+                card.href = result.link;
+                card.className = 'match-card';
+                card.target = '_blank';
+                
+                card.innerHTML = `
+                    <img src="${result.thumbnail}" alt="${result.title}">
+                    <div class="product-info">
+                        <h4 class="product-title">${result.title}</h4>
+                    </div>
+                `;
+                
+                resultsGrid.appendChild(card);
+            });
             
-            resultsList.appendChild(resultsDiv);
+            resultsList.appendChild(resultsGrid);
             resultsContainer.style.display = 'block';
         }
 
