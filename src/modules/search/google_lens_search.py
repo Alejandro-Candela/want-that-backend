@@ -4,19 +4,17 @@ from serpapi import GoogleSearch
 
 load_dotenv()
 
-# Librería para búsquedas en Google usando SerpAPI
-
-import os
-from serpapi import GoogleSearch
-
-def search_similar_product_online(image_url: str) -> None:
+def search_similar_product_online(image_url: str) -> list[dict]:
     """
     Hace una búsqueda inversa de la imagen en Google Lens (vía SerpAPI)
-    usando la URL pública de AWS S3 y muestra las coincidencias visuales y 
-    resultados de shopping (si existen).
+    y retorna las 5 primeras coincidencias visuales más relevantes.
 
-    Parámetros:
+    Args:
         image_url (str): URL pública de la imagen (por ejemplo, almacenada en AWS S3).
+
+    Returns:
+        list[dict]: Lista con las 5 primeras coincidencias visuales, cada una conteniendo
+                   título, link y thumbnail. Lista vacía si no hay coincidencias.
     """
 
     print(f"\nBuscando producto similar con Google Lens para la imagen: {image_url}\n")
@@ -38,18 +36,13 @@ def search_similar_product_online(image_url: str) -> None:
     # Procesar coincidencias visuales (visual_matches)
     # --------------------------------------------------------------------
     visual_matches = results.get("visual_matches", [])
-    if visual_matches:
-        print("=== Visual Matches ===")
-        for i, match in enumerate(visual_matches[:5]):
-            title = match.get("title", "Sin título")
-            link = match.get("link") or "Link no disponible"
-            thumbnail = match.get("thumbnail") or "Thumbnail no disponible"
+    top_matches = []
 
-            print(f"\nCoincidencia #{i+1}")
-            print(f"Título: {title}")
-            print(f"Link: {link}")
-            print(f"Imagen/Thumbnail: {thumbnail}")
-    else:
-        print("No se encontraron coincidencias visuales en 'visual_matches'.")
+    for match in visual_matches[:5]:
+        top_matches.append({
+            "title": match.get("title", "Sin título"),
+            "link": match.get("link", "Link no disponible"),
+            "thumbnail": match.get("thumbnail", "Thumbnail no disponible")
+        })
 
-    return results
+    return top_matches
