@@ -15,10 +15,10 @@ from modules.segmentation.sam_segmentation import (
 )
 from config import BOX_THRESHOLD, TEXT_THRESHOLD
 
-input_image_path = "input/input.jpg"
-text_prompt = "the chair"
-output_path = "output/segmented_object.webp"  # Define output path for segmented image
-bucket_name = "images-bucket"
+INPUT_IMAGE_PATH = "input/input.jpg"
+TEXT_PROMPT = "the chair"
+OUTPUT_PATH = "output/segmented_object.webp"
+BUCKET_NAME = "images-bucket"
 
 # -------------------------
 #  PIPELINE PRINCIPAL
@@ -27,15 +27,16 @@ def main():
     # --- Configuración inicial ---
     # Ruta de la imagen original y texto del prompt
 
+
     # Bucket de Supabase (ya creado en la consola de Supabase)
 
     # --- Paso 1: Cargar y procesar la imagen ---
-    image_pil = Image.open(input_image_path).convert("RGB")
+    image_pil = Image.open(INPUT_IMAGE_PATH).convert("RGB")
 
     # --- Paso 2: Obtener la bounding box, score y prompt con Grounding DINO ---
     best_box, best_score, used_prompt = get_grounding_dino_boxes(
         image=image_pil,
-        text_prompt=text_prompt,
+        text_prompt=TEXT_PROMPT,
         box_threshold=BOX_THRESHOLD,
         text_threshold=TEXT_THRESHOLD,
     )
@@ -49,7 +50,7 @@ def main():
     saved_path = save_optimized_segmented_image(image_pil, mask, segmented_image_path)
 
     # --- Paso 4: Subir la imagen segmentada a Supabase con metadata (score y prompt) ---
-    imgur_url = load_to_supabase(saved_path, bucket_name, best_score, used_prompt)
+    imgur_url = load_to_supabase(saved_path, BUCKET_NAME, best_score, used_prompt)
 
     if imgur_url:
         print(f"Imagen subida exitosamente. URL: {imgur_url}")

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Search</title>
+    <link rel="stylesheet" href="styles/form.css">
+</head>
+<body>
+    <div class="container">
+        <form id="searchForm" class="search-form">
+            <h1>Object Search</h1>
+            
+            <div class="form-group">
+                <label for="imageInput">Upload Image</label>
+                <div class="file-input-wrapper">
+                    <input 
+                        type="file" 
+                        id="imageInput" 
+                        accept="image/*"
+                        required
+                    >
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="promptInput">Object Description</label>
+                <input 
+                    type="text" 
+                    id="promptInput"
+                    placeholder="e.g., 'the chair'"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="submit-btn">Search Similar Products</button>
+        </form>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const searchForm = document.getElementById('searchForm');
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.style.backgroundImage = `url(${e.target.result})`;
+                    imagePreview.classList.add('has-image');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        searchForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            // Add your form submission logic here
+        });
+    </script>
+</body>
+</html>
