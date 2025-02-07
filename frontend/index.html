@@ -36,12 +36,38 @@
 
             <button type="submit" class="submit-btn">Search Similar Products</button>
         </form>
+
+        <!-- Nuevo contenedor para resultados -->
+        <div id="resultsContainer" class="results-container" style="display: none;">
+            <h2>Search Results</h2>
+            <div id="resultsList" class="results-list"></div>
+        </div>
     </div>
 
     <script>
         const imageInput = document.getElementById('imageInput');
         const imagePreview = document.getElementById('imagePreview');
         const searchForm = document.getElementById('searchForm');
+        const promptInput = document.getElementById('promptInput');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsList = document.getElementById('resultsList');
+
+        function displayResults(results) {
+            resultsList.innerHTML = ''; // Limpiar resultados anteriores
+            
+            // Crear contenedor para los resultados
+            const resultsDiv = document.createElement('div');
+            resultsDiv.className = 'results-raw';
+            
+            // Mostrar la estructura completa de los resultados
+            resultsDiv.innerHTML = `
+                <h3>Debug Info</h3>
+                <pre>${JSON.stringify(results, null, 2)}</pre>
+            `;
+            
+            resultsList.appendChild(resultsDiv);
+            resultsContainer.style.display = 'block';
+        }
 
         imageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -57,7 +83,44 @@
 
         searchForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            // Add your form submission logic here
+            
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = 'Processing...';
+            submitButton.disabled = true;
+            resultsContainer.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('image', imageInput.files[0]);
+            formData.append('text_prompt', promptInput.value);
+
+            try {
+                console.log('Sending request...');
+                const response = await fetch('http://localhost:8000/api/search', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.status === 'success') {
+                    displayResults(data.results);
+                }
+
+            } catch (error) {
+                console.error('Error details:', error);
+                alert(`Error: ${error.message}`);
+            } finally {
+                submitButton.textContent = originalButtonText;
+                submitButton.disabled = false;
+            }
         });
     </script>
 </body>

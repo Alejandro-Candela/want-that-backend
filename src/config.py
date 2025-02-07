@@ -7,5 +7,5 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 BOX_THRESHOLD=0.3
 TEXT_THRESHOLD=0.1
-
+BUCKET_NAME="images-bucket"
 
