@@ -52,20 +52,4 @@ def search_similar_product_online(image_url: str) -> None:
     else:
         print("No se encontraron coincidencias visuales en 'visual_matches'.")
 
-    # --------------------------------------------------------------------
-    # Procesar resultados de shopping (inline_shopping_results)
-    # --------------------------------------------------------------------
-    inline_shopping = results.get("inline_shopping_results", [])
-    if inline_shopping:
-        print("\n=== Resultados de Compras (inline_shopping_results) ===")
-        for i, item in enumerate(inline_shopping[:5]):
-            product_title = item.get("title", "Sin título")
-            product_link = item.get("link") or "Link no disponible"
-            price = item.get("extracted_price", "Precio no disponible")
-
-            print(f"\nProducto #{i+1}")
-            print(f"Título: {product_title}")
-            print(f"Link: {product_link}")
-            print(f"Precio: {price}")
-    else:
-        print("\nNo se encontraron resultados de 'inline_shopping_results'.")
+    return results
