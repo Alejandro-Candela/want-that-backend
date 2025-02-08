@@ -16,7 +16,7 @@ from modules.segmentation.sam_segmentation import (
 )
 from config import BOX_THRESHOLD, TEXT_THRESHOLD, BUCKET_NAME
 
-def process_image_pipeline(image_path: str, text_prompt: str) -> tuple[dict, list[str], str]:
+def process_image_pipeline(image_path: str, text_prompt: str) -> tuple[dict, list[str], str, float]:
     """
     Procesa una imagen a través del pipeline completo.
     
@@ -25,7 +25,7 @@ def process_image_pipeline(image_path: str, text_prompt: str) -> tuple[dict, lis
         text_prompt: Texto descriptivo del objeto a buscar
     
     Returns:
-        tuple[dict, list[str], str]: Resultados del procesamiento, lista de pasos y URL de imagen segmentada
+        tuple[dict, list[str], str, float]: Resultados del procesamiento, lista de pasos, URL de imagen segmentada y score de segmentación
     """
     progress_steps = []
     
@@ -46,10 +46,10 @@ def process_image_pipeline(image_path: str, text_prompt: str) -> tuple[dict, lis
 
     # 3) Segmentar con SAM
     progress_steps.append("Segmenting object from background...")
-    mask = segment_with_sam(image_pil, best_box)
+    mask, segmentation_score = segment_with_sam(image_pil, best_box)
     segmented_path = "output/segmented_object.webp"
     save_optimized_segmented_image(image_pil, mask, segmented_path)
-    progress_steps.append("Object segmented successfully")
+    progress_steps.append(f"Object segmented successfully with confidence: {segmentation_score:.2%}")
 
     # Convertir la imagen segmentada a base64
     with open(segmented_path, "rb") as image_file:
@@ -65,4 +65,4 @@ def process_image_pipeline(image_path: str, text_prompt: str) -> tuple[dict, lis
     search_results = search_similar_product_online(imgur_url)
     progress_steps.append("Search completed successfully")
 
-    return search_results, progress_steps, f"data:image/webp;base64,{segmented_base64}"
+    return search_results, progress_steps, f"data:image/webp;base64,{segmented_base64}", segmentation_score

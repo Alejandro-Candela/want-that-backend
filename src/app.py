@@ -35,7 +35,7 @@ async def search_object(
             shutil.copyfileobj(image.file, buffer)
         
         # Procesar imagen usando el pipeline y obtener resultados y mensajes
-        results, progress_steps, segmented_image = process_image_pipeline(
+        results, progress_steps, segmented_image, segmentation_score = process_image_pipeline(
             image_path=temp_image_path,
             text_prompt=text_prompt
         )
@@ -44,7 +44,8 @@ async def search_object(
             "status": "success", 
             "results": results,
             "progress_steps": progress_steps,
-            "segmented_image": segmented_image
+            "segmented_image": segmented_image,
+            "segmentation_score": segmentation_score
         }
         
     except Exception as e:
