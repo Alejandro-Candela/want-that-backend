@@ -38,7 +38,7 @@ def search_similar_product_online(image_url: str) -> list[dict]:
     visual_matches = results.get("visual_matches", [])
     top_matches = []
 
-    for match in visual_matches[:5]:
+    for match in visual_matches[:3]:
         top_matches.append({
             "title": match.get("title", "Sin título"),
             "link": match.get("link", "Link no disponible"),

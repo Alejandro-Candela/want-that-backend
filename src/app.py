@@ -1,8 +1,11 @@
-from fastapi import FastAPI, UploadFile, Form
+from fastapi import FastAPI, UploadFile, Form, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 import shutil
 import os
+import json
+from typing import List
+import asyncio
 
 from src.main import process_image_pipeline
 
@@ -21,6 +24,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Almacenar conexiones WebSocket activas
+active_connections: List[WebSocket] = []
+
+async def broadcast_progress(message: str):
+    """Envía mensaje a todas las conexiones activas"""
+    for connection in active_connections:
+        await connection.send_json({"progress": message})
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    active_connections.append(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except:
+        active_connections.remove(websocket)
+
 @app.post("/api/search")
 async def search_object(
     image: UploadFile,
@@ -35,9 +56,10 @@ async def search_object(
             shutil.copyfileobj(image.file, buffer)
         
         # Procesar imagen usando el pipeline y obtener resultados y mensajes
-        results, progress_steps, segmented_image, segmentation_score = process_image_pipeline(
+        results, progress_steps, segmented_image, segmentation_score = await process_image_pipeline(
             image_path=temp_image_path,
-            text_prompt=text_prompt
+            text_prompt=text_prompt,
+            progress_callback=broadcast_progress
         )
         
         return {
@@ -49,6 +71,7 @@ async def search_object(
         }
         
     except Exception as e:
+        await broadcast_progress(f"Error: {str(e)}")
         return {"status": "error", "message": str(e)}
     
     finally:

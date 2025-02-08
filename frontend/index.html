@@ -64,6 +64,33 @@
         const resultsList = document.getElementById('resultsList');
         const progressSteps = document.getElementById('progressSteps');
 
+        let ws;
+
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:8000/ws');
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.progress) {
+                    displayProgress(data.progress);
+                }
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket connection closed');
+                // Reconectar después de un breve delay
+                setTimeout(connectWebSocket, 1000);
+            };
+
+            ws.onerror = function(err) {
+                console.error('WebSocket error:', err);
+                ws.close();
+            };
+        }
+
+        // Conectar WebSocket al cargar la página
+        connectWebSocket();
+
         function displayResults(results) {
             resultsList.innerHTML = ''; // Limpiar resultados anteriores
             
@@ -189,6 +216,13 @@
             } finally {
                 submitButton.textContent = originalButtonText;
                 submitButton.disabled = false;
+            }
+        });
+
+        // Asegurar que el WebSocket se cierre al salir de la página
+        window.addEventListener('beforeunload', function() {
+            if (ws) {
+                ws.close();
             }
         });
     </script>
