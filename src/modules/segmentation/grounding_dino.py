@@ -8,7 +8,7 @@ src_dir = os.path.abspath(os.path.join(current_dir, '../../'))
 sys.path.append(src_dir)
 
 from transformers import AutoProcessor, GroundingDinoForObjectDetection
-from config import DEVICE, GROUNDING_DINO_MODEL, BOX_THRESHOLD, TEXT_THRESHOLD
+from config import DEVICE, GROUNDING_DINO_MODEL
 from utils.utils import preprocess_caption
 
 processor = AutoProcessor.from_pretrained(GROUNDING_DINO_MODEL)

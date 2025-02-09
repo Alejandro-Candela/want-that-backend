@@ -46,41 +46,51 @@ def segment_with_sam(image_pil: Image.Image, box: torch.Tensor, multimask_output
     return mask_predictions[best_mask_idx], confidence_score
 
 
-def save_optimized_segmented_image(image_pil, mask, output_path):
+def save_optimized_segmented_image(image_pil: Image.Image, mask: np.ndarray, output_path: str):
     """
-    Guarda la imagen segmentada en formato JPEG optimizado con fondo blanco.
+    Guarda la imagen segmentada en formato JPEG optimizado con fondo blanco,
+    recortada al bounding box con un margen adicional del 10%.
     
-    Se asume que:
-      - `image_pil` es una imagen PIL.
-      - `mask` es un array binario (con valores 0 o 1) del mismo tamaño que la imagen.
-      
-    En las zonas donde la máscara es 1 se conserva la imagen original; en las zonas donde es 0 se rellena con blanco.
+    Args:
+        image_pil: Imagen original
+        mask: Máscara binaria
+        output_path: Ruta de salida para la imagen
     
-    La imagen se guarda en formato JPEG, que suele producir archivos de menor peso.
-    
-    Parámetros:
-      image_pil (PIL.Image): Imagen original.
-      mask (np.array): Array binario (0 y 1) con la máscara.
-      output_path (str): Ruta donde se guardará la imagen optimizada (por ejemplo, "output.jpg").
-    
-    Retorna:
-      str: La ruta de salida (output_path).
+    Returns:
+        str: Ruta de la imagen guardada
     """
-    # Convertir la imagen a RGB (sin canal alfa)
+    # Encontrar los límites de la máscara
+    rows = np.any(mask, axis=1)
+    cols = np.any(mask, axis=0)
+    y1, y2 = np.where(rows)[0][[0, -1]]
+    x1, x2 = np.where(cols)[0][[0, -1]]
+    
+    # Calcular el margen (10% del ancho de la región)
+    width = x2 - x1
+    margin = int(width * 0.1)
+    
+    # Ajustar las coordenadas con el margen, asegurando que no excedan los límites de la imagen
+    x1 = max(0, x1 - margin)
+    y1 = max(0, y1 - margin)
+    x2 = min(image_pil.width, x2 + margin)
+    y2 = min(image_pil.height, y2 + margin)
+    
+    # Recortar la imagen y la máscara
     image_rgb = image_pil.convert("RGB")
     image_np = np.array(image_rgb)
+    cropped_image = image_np[y1:y2, x1:x2]
+    cropped_mask = mask[y1:y2, x1:x2]
     
-    # Expandir la máscara a 3 canales para que coincida con la imagen (alto, ancho, 3)
-    mask_3channel = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
+    # Expandir la máscara a 3 canales
+    mask_3channel = np.repeat(cropped_mask[:, :, np.newaxis], 3, axis=2)
     
-    # Crear una imagen de fondo blanco del mismo tamaño
-    white_background = np.full_like(image_np, 255)
+    # Crear fondo blanco del mismo tamaño
+    white_background = np.full_like(cropped_image, 255)
     
-    # Combinar la imagen original y el fondo blanco:
-    # Se conserva el pixel original donde la máscara es 1, y se usa blanco donde es 0.
-    segmented_image = np.where(mask_3channel, image_np, white_background).astype(np.uint8)
+    # Combinar imagen original y fondo blanco
+    segmented_image = np.where(mask_3channel, cropped_image, white_background).astype(np.uint8)
     
-    # Convertir el array resultante a una imagen PIL y guardarla en formato JPEG
+    # Convertir y guardar
     segmented_pil = Image.fromarray(segmented_image)
     segmented_pil.save(output_path, "JPEG", quality=50, optimize=True)
     
