@@ -16,15 +16,14 @@ from modules.segmentation.sam_segmentation import (
 )
 from config import BOX_THRESHOLD, TEXT_THRESHOLD, BUCKET_NAME
 
+
 async def process_image_pipeline(
-    image_path: str, 
-    text_prompt: str, 
-    progress_callback
+    image_path: str, text_prompt: str, progress_callback
 ) -> tuple[dict, list[str], str, float]:
     """Procesa una imagen a través del pipeline completo."""
-    
+
     progress_steps = []  # Lista para almacenar los pasos
-    
+
     try:
         # 1) Cargar imagen
         await progress_callback("Loading image...")
@@ -52,18 +51,22 @@ async def process_image_pipeline(
         mask, segmentation_score = segment_with_sam(image_pil, best_box)
         segmented_path = "output/segmented_object.webp"
         save_optimized_segmented_image(image_pil, mask, segmented_path)
-        progress_msg = f"Object segmented successfully with confidence: {segmentation_score:.2%}"
+        progress_msg = (
+            f"Object segmented successfully with confidence: {segmentation_score:.2%}"
+        )
         await progress_callback(progress_msg)
         progress_steps.append(progress_msg)
 
         # Convertir la imagen segmentada a base64
         with open(segmented_path, "rb") as image_file:
-            segmented_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+            segmented_base64 = base64.b64encode(image_file.read()).decode("utf-8")
 
         # 4) Subir a Supabase y obtener URL
         await progress_callback("Uploading segmented image...")
         progress_steps.append("Uploading segmented image...")
-        imgur_url = load_to_supabase(segmented_path, BUCKET_NAME, best_score, used_prompt)
+        imgur_url = load_to_supabase(
+            segmented_path, BUCKET_NAME, best_score, used_prompt
+        )
         await progress_callback("Image uploaded successfully")
         progress_steps.append("Image uploaded successfully")
 
@@ -74,7 +77,12 @@ async def process_image_pipeline(
         await progress_callback("Search completed successfully")
         progress_steps.append("Search completed successfully")
 
-        return search_results, progress_steps, f"data:image/webp;base64,{segmented_base64}", segmentation_score
+        return (
+            search_results,
+            progress_steps,
+            f"data:image/webp;base64,{segmented_base64}",
+            segmentation_score,
+        )
 
     except Exception as e:
         error_msg = f"Error: {str(e)}"

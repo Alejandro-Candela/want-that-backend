@@ -3,8 +3,8 @@ import torch
 import sys
 import os
 
-current_dir = os.path.dirname(__file__)              # ruta de /src/modules/segmentation
-src_dir = os.path.abspath(os.path.join(current_dir, '../../'))
+current_dir = os.path.dirname(__file__)  # ruta de /src/modules/segmentation
+src_dir = os.path.abspath(os.path.join(current_dir, "../../"))
 sys.path.append(src_dir)
 
 from transformers import AutoProcessor, GroundingDinoForObjectDetection
@@ -19,14 +19,14 @@ model_dino = (
 )
 
 
-def get_grounding_dino_boxes(image: Image.Image, text_prompt: str, box_threshold: float, text_threshold: float):
+def get_grounding_dino_boxes(
+    image: Image.Image, text_prompt: str, box_threshold: float, text_threshold: float
+):
     """
     Retorna la bounding box con el score más alto, su score y el text prompt.
     """
     inputs = processor(
-        images=image, 
-        text=preprocess_caption(text_prompt), 
-        return_tensors="pt"
+        images=image, text=preprocess_caption(text_prompt), return_tensors="pt"
     ).to(DEVICE)
 
     with torch.no_grad():
@@ -38,14 +38,13 @@ def get_grounding_dino_boxes(image: Image.Image, text_prompt: str, box_threshold
         input_ids=inputs.input_ids,
         target_sizes=[(height, width)],  # (alto, ancho)
         box_threshold=box_threshold,
-        text_threshold=text_threshold
+        text_threshold=text_threshold,
     )
 
     results = postprocessed[0]  # Diccionario con 'scores', 'labels', 'boxes'
-    max_score_index = results['scores'].argmax().item()
+    max_score_index = results["scores"].argmax().item()
 
-    best_box = results['boxes'][max_score_index]
-    best_score = results['scores'][max_score_index]
+    best_box = results["boxes"][max_score_index]
+    best_score = results["scores"][max_score_index]
 
     return best_box, best_score, text_prompt
-

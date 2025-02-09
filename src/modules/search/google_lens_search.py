@@ -4,6 +4,7 @@ from serpapi import GoogleSearch
 
 load_dotenv()
 
+
 def search_similar_product_online(image_url: str) -> list[dict]:
     """
     Hace una búsqueda inversa de la imagen en Google Lens (vía SerpAPI)
@@ -24,9 +25,9 @@ def search_similar_product_online(image_url: str) -> list[dict]:
     # --------------------------------------------------------------------
     params = {
         "engine": "google_lens",
-        "api_key": os.getenv('SERPAPI_API_KEY'),
-        "hl": "en",  # idioma
-        "url": image_url,  # Se utiliza la URL de AWS S3
+        "api_key": os.getenv("SERPAPI_API_KEY"),
+        "hl": "es",  # idioma
+        "url": image_url,  # Se utiliza la URL de imgur
     }
 
     search = GoogleSearch(params)
@@ -39,10 +40,13 @@ def search_similar_product_online(image_url: str) -> list[dict]:
     top_matches = []
 
     for match in visual_matches[:3]:
-        top_matches.append({
-            "title": match.get("title", "Sin título"),
-            "link": match.get("link", "Link no disponible"),
-            "thumbnail": match.get("thumbnail", "Thumbnail no disponible")
-        })
+        top_matches.append(
+            {
+                "title": match.get("title", "Sin título"),
+                "link": match.get("link", "Link no disponible"),
+                "thumbnail": match.get("thumbnail", "Thumbnail no disponible"),
+                "price": match.get("price", "Precio no disponible"),
+            }
+        )
 
     return top_matches
