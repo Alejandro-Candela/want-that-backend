@@ -20,8 +20,8 @@ def search_similar_product_online(image_url: str) -> list[dict]:
         image_url (str): URL pública de la imagen (por ejemplo, almacenada en AWS S3).
 
     Returns:
-        list[dict]: Lista con las 5 primeras coincidencias visuales, cada una conteniendo:
-                   title, link, thumbnail y price. Lista vacía si no hay coincidencias.
+        list[dict]: Lista con las 5 primeras coincidencias visuales, cada una conteniendo
+                   título, link y thumbnail. Lista vacía si no hay coincidencias.
     """
 
     print(f"\nBuscando producto similar con Google Lens para la imagen: {image_url}\n")
@@ -45,7 +45,7 @@ def search_similar_product_online(image_url: str) -> list[dict]:
     visual_matches = results.get("visual_matches", [])
     top_matches = []
 
-    for match in visual_matches[:5]:
+    for match in visual_matches[:3]:
         top_matches.append(
             {
                 "title": match.get("title", "Sin título"),
@@ -55,31 +55,7 @@ def search_similar_product_online(image_url: str) -> list[dict]:
             }
         )
 
-    # Imprimir en consola los resultados formateados
-    print("Resultados de productos similares:")
-    for product in top_matches:
-        print(f"Title: {product['title']}")
-        print(f"Link: {product['link']}")
-        print(f"Thumbnail: {product['thumbnail']}")
-        print(f"Price: {product['price']}")
-        print("-------------")
-    
     return top_matches
-
-def get_vision_client():
-    """Initialize Vision API client with credentials"""
-    try:
-        credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-        if not credentials_path:
-            raise ValueError("GOOGLE_APPLICATION_CREDENTIALS environment variable not set")
-            
-        credentials = service_account.Credentials.from_service_account_file(
-            credentials_path
-        )
-        return vision.ImageAnnotatorClient(credentials=credentials)
-    except Exception as e:
-        logger.error(f"Error initializing Vision API client: {str(e)}")
-        raise
 
 def get_product_search_client():
     """Initialize Product Search client with credentials"""
