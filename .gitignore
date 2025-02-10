@@ -7,4 +7,5 @@ output/*
 src/notebooks/*
 src/models/*
 sandbox.py
+GCP-cred.json
 .env
