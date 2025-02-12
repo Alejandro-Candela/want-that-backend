@@ -9,3 +9,4 @@ src/models/*
 sandbox.py
 GCP-cred.json
 .env
+.pytest_cache
