@@ -35,10 +35,6 @@ uvicorn src.app:app --reload --port 8000
 3. 🔍 The API analyzes the image and searches for similar products
 4. 💫 Voilà! You'll get a list of similar products
 
-## 📚 API Documentation
-- 🎯 Swagger UI: `http://localhost:8000/docs`
-- 📖 ReDoc: `http://localhost:8000/redoc`
-
 ## 🔥 Main Endpoints
 
 ### Image Search
@@ -61,9 +57,7 @@ No worries! Open an issue and we'll look into it together 🤝
 MIT - Use it as you wish! 🎉
 
 ## 🤝 Need Help?
-- 📧 Email: your@email.com
-- 🐦 Twitter: @youruser
-- 💬 Discord: [Join our community]
+- 📧 Email: alex.candela@outlook.com
 
 ## 🚀 Coming Soon
 - [ ] Multi-image search
