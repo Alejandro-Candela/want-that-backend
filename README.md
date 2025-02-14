@@ -20,14 +20,9 @@ Hey there! Want-That is a cool API that helps you find products online just by u
 
 ### 📦 Installation
 
-1. Clone and enter the repo:
+1. Clone and enter the repo.
 
-git clone https://github.com/username/Want-That-api.git
-cd Want-That-api
-
-2. Install dependencies:
-
-pip install fastapi uvicorn
+2. Install dependencies.
 
 3. Let's run! 🏃‍♂️
 
