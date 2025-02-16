@@ -20,14 +20,9 @@ Hey there! Want-That is a cool API that helps you find products online just by u
 
 ### 📦 Installation
 
-1. Clone and enter the repo:
+1. Clone and enter the repo.
 
-git clone https://github.com/username/Want-That-api.git
-cd Want-That-api
-
-2. Install dependencies:
-
-pip install fastapi uvicorn
+2. Install dependencies.
 
 3. Let's run! 🏃‍♂️
 
@@ -39,10 +34,6 @@ uvicorn src.app:app --reload --port 8000
 2. 📸 Upload an image of the product you're interested in
 3. 🔍 The API analyzes the image and searches for similar products
 4. 💫 Voilà! You'll get a list of similar products
-
-## 📚 API Documentation
-- 🎯 Swagger UI: `http://localhost:8000/docs`
-- 📖 ReDoc: `http://localhost:8000/redoc`
 
 ## 🔥 Main Endpoints
 
@@ -66,9 +57,7 @@ No worries! Open an issue and we'll look into it together 🤝
 MIT - Use it as you wish! 🎉
 
 ## 🤝 Need Help?
-- 📧 Email: your@email.com
-- 🐦 Twitter: @youruser
-- 💬 Discord: [Join our community]
+- 📧 Email: alex.candela@outlook.com
 
 ## 🚀 Coming Soon
 - [ ] Multi-image search
