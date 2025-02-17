@@ -11,3 +11,5 @@ GCP-cred.json
 .env
 .pytest_cache
 README.Docker.md
+requirements.txt
+Dockerfile
